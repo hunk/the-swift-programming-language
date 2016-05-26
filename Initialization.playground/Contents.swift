@@ -119,13 +119,13 @@ beetsQuestion.ask()
 beetsQuestion.reponse = "I also like beets. (But not with cheese)"
 
 // Default Initializers
-class ShoppingListItem {
+class ShoppingListItemAlt {
     var name: String?
     var quantity = 1
     var purchased = false
 }
 
-var item = ShoppingListItem()
+var item = ShoppingListItemAlt()
 
 // Memberwise Initializers for Structure Types
 struct Size {
@@ -167,4 +167,106 @@ let centerRect = Rect(center: Point(x: 4.0, y: 4.0), size: Size(width: 3.0, heig
 centerRect.origin.x
 centerRect.origin.y
 
+// Class inherintance and Initialization
+// Desingnated Initializers and Conveniece Initializers
+
+// Desingnated
+//init(parameters) {
+//    statements
+//}
+
+
+// Convenience
+//conveniece init(parameters) {
+//    statements
+//}
+
+// Initializer Inheritance and Overriding
+class Vehicle {
+    var numberOfWheels = 0
+    var description: String {
+        return "\(numberOfWheels) wheels(s)"
+    }
+}
+
+let vehicle = Vehicle()
+print("Vehicle: \(vehicle.description)")
+
+class Bicycle: Vehicle {
+    override init() {
+        super.init()
+        numberOfWheels = 2
+    }
+}
+
+let bicycle = Bicycle()
+print("Bicycle: \(bicycle.description)")
+
+// Designated and Convenience Initializers in Action
+class Food {
+    var name: String
+    
+    init(name: String) {
+        NSLog("1")
+        self.name = name
+    }
+    
+    convenience init() {
+        NSLog("2")
+        self.init(name: "[Unnamed]")
+    }
+}
+
+
+let namedMeat = Food(name: "Bacon")
+namedMeat.name
+
+let mysteryMeat = Food()
+mysteryMeat.name
+
+class RecipeIngredient: Food {
+    var quantity: Int
+    
+    init(name: String, quantity: Int) {
+        NSLog("3")
+        self.quantity = quantity
+        super.init(name: name)
+    }
+    
+    override convenience init(name: String) {
+        NSLog("4")
+        self.init(name: name, quantity: 1)
+    }
+}
+
+let oneMysteryItem = RecipeIngredient()
+oneMysteryItem.name
+oneMysteryItem.quantity
+
+let oneBacon = RecipeIngredient(name: "Bacon")
+let sizEggs = RecipeIngredient(name: "Eggs", quantity: 6)
+
+class ShoppingListItem: RecipeIngredient {
+    var purchased = false
+    var description: String {
+        var output = "\(quantity) x \(name)"
+        output += purchased ? " ✓" : " 𐄂"
+        return output
+    }
+}
+
+var breakfastList = [
+    ShoppingListItem(),
+    ShoppingListItem(name: "Bacon"),
+    ShoppingListItem(name: "Eggs", quantity: 6)
+]
+breakfastList[0].name
+breakfastList[0].name = "Orange juice"
+breakfastList[0].description
+breakfastList[0].purchased = true
+breakfastList[0].description
+
+for item in breakfastList {
+    print(item.description)
+}
 
