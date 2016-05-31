@@ -152,8 +152,96 @@ mori = Customer(name: "Mori name")
 mori?.card = CreditCard(number: 1234_5678_9012_3456, customer: mori!)
 mori = nil
 
+var anotherCustomer: Customer?
+anotherCustomer = Customer(name: "another customer")
+var creditCard: CreditCard? = CreditCard(number: 1111_2222_3333_4444, customer: anotherCustomer!)
+anotherCustomer?.card = creditCard
+anotherCustomer = nil
+creditCard = nil
 
+// Unowned References and Implicitly Unwrapped Optional Properties
+class Country {
+    let name: String
+    var capitalCity: City!
+    
+    init(name: String, capitalName: String) {
+        self.name = name
+        self.capitalCity = City(name: capitalName, country: self)
+    }
+}
 
+class City {
+    let name: String
+    unowned let country: Country
+    
+    init(name: String, country: Country) {
+        self.name = name
+        self.country = country
+    }
+}
 
+var country = Country(name: "Canada", capitalName: "Ottawa")
+print("\(country.name)'s capital city is called \(country.capitalCity.name)")
 
+// Strong Reference Cycles for Closures
+class HTMLElement {
+    let name: String
+    let text: String?
+    
+    lazy var asHTML: () -> String = {
+        if let text = self.text {
+            return "<\(self.name)>\(text)</\(self.name)>"
+        } else {
+            return "<\(self.name) />"
+        }
+    }
+    
+    init(name: String, text: String? = nil) {
+        self.name = name
+        self.text = text
+    }
+    
+    deinit {
+        print("HTMLElement:\(name) is being deinitialized")
+    }
+}
 
+let heading = HTMLElement(name: "h1")
+let defaultText = "some default text"
+heading.asHTML = {
+    return "<\(heading.name)>\(heading.text ?? defaultText)</\(heading.name)>"
+}
+
+print(heading.asHTML())
+
+var paragraph: HTMLElement? = HTMLElement(name: "p", text: "hello, world")
+print(paragraph!.asHTML())
+paragraph = nil
+
+// Resolving Strong Reference Cycles for Closures
+class HTMLElement2 {
+    let name: String
+    let text: String?
+    
+    lazy var asHTML: () -> String = {
+        [unowned self] in
+            if let text = self.text {
+                return "<\(self.name)>\(text)</\(self.name)>"
+            } else {
+                return "<\(self.name) />"
+            }
+    }
+    
+    init(name: String, text: String? = nil) {
+        self.name = name
+        self.text = text
+    }
+    
+    deinit {
+        print("HTMLElement2:\(name) is being deinitialized")
+    }
+}
+
+var paragraph2: HTMLElement2? = HTMLElement2(name: "p", text: "hello, world")
+print(paragraph2!.asHTML())
+paragraph2 = nil
