@@ -460,5 +460,5 @@ let hamsters = [murrayTheHamster, morganTheHamster, mauriceTheHamster]
 
 print(hamsters.textualDescription)
 
-let animals = [Animal(),Animal(),Animal()]
+let animals = [Animal(legs: 4) ,Animal(legs: 3),Animal(legs: 2)]
 //print(Animal.textualDescription) // Error because animal does not conform the protocol TextRepresentable, so, the collecionType (array) dont include textualDescription
