@@ -249,3 +249,216 @@ let simonTheHamster = Hamster(name: "Simon")
 let somethingTextRepesentable: TextRepresentable = simonTheHamster
 print(somethingTextRepesentable.textualDescription)
 
+
+// Collections of Protocol Types
+let things: [TextRepresentable] = [game, d12, simonTheHamster]
+
+for thing in things {
+    print(thing.textualDescription)
+     if let simon = thing as? Hamster {
+        print(simon.name)
+    }
+}
+
+// Protocol Ineheritance
+protocol InheritingProtocol: SomeProtocol, AnotherProtocol {
+
+}
+
+protocol PrettyTextRepresentable: TextRepresentable {
+    var prettyTextualDescription: String { get }
+}
+
+extension SnakesAndLadders: PrettyTextRepresentable {
+    var prettyTextualDescription: String {
+        var output = textualDescription + ": \n"
+        for index in 1...finalSquare {
+            switch board[index] {
+            case let ladder where ladder > 0:
+                output += "🔺 "
+            case let snake where snake < 0:
+                output += "🔻 "
+            default:
+                output += "⚬ "
+            }
+        }
+        return output
+    }
+}
+
+print(game.prettyTextualDescription)
+
+protocol SomeInheritedProtocol {
+
+}
+
+// Class-Only Protocols
+protocol SomeClassOnlyProtocol: class, SomeInheritedProtocol {
+    // class-only protocol definition goes here
+}
+
+// Protocol Composition
+protocol Named {
+    var name: String { get }
+}
+
+protocol Aged {
+    var age: Int { get }
+}
+
+struct AnotherPerson: Named, Aged {
+    var name: String
+    var age: Int
+}
+
+func wishHappyBirthday(celebrator: protocol<Named,Aged>) {
+    print("Heppy birthday \(celebrator.name)- you're \(celebrator.age)")
+}
+
+let birthdayPerson = AnotherPerson(name: "Malcom", age: 21)
+wishHappyBirthday(birthdayPerson)
+
+// Cheking for Protocol Conformance
+
+protocol HasArea {
+    var area: Double { get }
+}
+
+class Circle: HasArea {
+    let pi = 3.1415927
+    var radius: Double
+    var area: Double { return pi * radius * radius }
+    init(radius: Double) { self.radius = radius }
+}
+
+class Country: HasArea {
+    var area: Double
+    init(area: Double) { self.area = area }
+}
+
+class Animal {
+    var legs: Int
+    init(legs: Int) { self.legs = legs }
+}
+
+let objects: [AnyObject] = [
+    Circle(radius: 2.0),
+    Country(area: 234_610),
+    Animal(legs: 4)
+]
+
+for object in objects {
+    if let objectWithArea = object as? HasArea {
+        print("Area is \(objectWithArea.area)")
+    } else {
+        print("Something that doesn't have an area")
+    }
+}
+
+// Optional Protocol Requirements
+
+@objc protocol CounterDataSource {
+    optional func incrementForCount(count: Int) -> Int
+    optional var fixedIncrement: Int { get }
+}
+
+class Counter {
+    var count = 0
+    var dataSource: CounterDataSource?
+    func increment() {
+        if let amount = dataSource?.incrementForCount?(count) {
+            count += amount
+        } else if let amount = dataSource?.fixedIncrement {
+            count += amount
+        }
+    }
+}
+
+class ThreeSource: NSObject, CounterDataSource {
+    let fixedIncrement = 3
+}
+
+var counter = Counter()
+counter.dataSource = ThreeSource()
+
+for _ in 1...4 {
+    counter.increment()
+    print(counter.count)
+}
+
+@objc class TowardsZeroSource: NSObject, CounterDataSource {
+    func incrementForCount(count: Int) -> Int {
+        if count == 0 {
+            return 0
+        } else if count < 0 {
+            return 1
+        } else {
+            return -1
+        }
+    }
+}
+
+counter.count = -4
+counter.dataSource = TowardsZeroSource()
+for _ in 1...5 {
+    counter.increment()
+    print(counter.count)
+}
+
+// Protocol Extensions
+extension RandomNumberGenerator {
+    func randomBool() -> Bool {
+        return random() > 0.5
+    }
+}
+
+let generator2 = LinearCongruentialGenerator()
+print("Here's a random number: \(generator.random())")
+print("And here's a random Boolean: \(generator.randomBool())")
+
+// Providing Default Implementations
+extension PrettyTextRepresentable {
+    var prettyTextualDescription: String {
+        return textualDescription
+    }
+}
+
+protocol hunkProtocol {
+    func someFunc() -> String
+}
+
+class hunker: hunkProtocol {
+//    func someFunc() -> String {
+//        return "asdfgh"
+//    }
+}
+
+extension hunkProtocol {
+    func someFunc() -> String {
+        return "Qwerty"
+    }
+}
+
+let yop = hunker()
+yop.someFunc()
+
+// Adding Constraints to Protocol Extensions
+extension CollectionType where Generator.Element: TextRepresentable {
+    var textualDescription: String {
+        let itemsAsText = self.map {
+            $0.textualDescription
+        }
+        
+        return "[" + itemsAsText.joinWithSeparator(",") + "]"
+    }
+}
+
+let murrayTheHamster = Hamster(name: "Murray")
+let morganTheHamster = Hamster(name: "Morgan")
+let mauriceTheHamster = Hamster(name: "Maurice")
+let hamsters = [murrayTheHamster, morganTheHamster, mauriceTheHamster]
+
+print(hamsters.textualDescription)
+
+let animals = [Animal(),Animal(),Animal()]
+//print(Animal.textualDescription) // Error because animal does not conform the protocol TextRepresentable, so, the collecionType (array) dont include textualDescription
